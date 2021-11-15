@@ -362,13 +362,13 @@ const App = () => {
                         }
                         <InteractionButton/>
                         <RegisterButton/>
-                        <div>{allTasks.map((task) => {
-                            return (task.map((info) => {
-                                console.log(info);
-                                return (<div>{info.toString()}</div>);
-                            }));
-                        })
-                        }</div>
+                        <div className="taskCard">{allTasks.map((task) => {
+                                return (
+                                    <div>
+                                        <p>{task}</p>
+                                    </div>);
+                        })};
+                        </div>
                     </div>
                 }
             </div>

@@ -190,3 +190,11 @@ body{
     transform: rotate(360deg);
   }
 }
+
+.taskCard {
+  background: #ededed;
+  border-radius: 15px;
+  padding: 10px;
+  margin: 10px;
+
+}
