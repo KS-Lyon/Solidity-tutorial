@@ -323,19 +323,6 @@ const App = () => {
         )
     }
 
-
-    const Tasks = () => {
-        if (allTasks.length !== 0) {
-            allTasks.map((task) => {
-                <div>
-                    {<div>task[0], task[1], task[2], task[3], task[4]</div>}
-                </div>
-            })
-        } else {
-            return (<div></div>)
-        }
-    }
-
     return (
         <div className="mainContainer">
             <div className="dataContainer">
@@ -362,12 +349,20 @@ const App = () => {
                         }
                         <InteractionButton/>
                         <RegisterButton/>
-                        <div className="taskCard">{allTasks.map((task) => {
+                        <div className="taskCard">
+                            {allTasks.map((task) => {
+                                console.log(task);
+                                console.log("aaaa", task[0]);
                                 return (
                                     <div>
-                                        <p>{task}</p>
-                                    </div>);
-                        })};
+                                        <p>{task[0]}</p>
+                                        <p>{task[1]}</p>
+                                        <p>{task[2].toString()}</p>
+                                        <p>{task[3].toString()}</p>
+                                        <p>{task[4].toString()}</p>
+
+                                    </div>)
+                            })}
                         </div>
                     </div>
                 }
