@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from "react";
 import {ethers} from "ethers";
 import './App.css';
-import tasksAbi from './utils/tasksAbi.json';
+import contractABI from './abi/Tasks.json';
 
 const CHAIN_ID = "0x13881";
 const App = () => {
@@ -18,7 +18,7 @@ const App = () => {
     const [allTasks, setAllTasks] = useState([]);
 
 
-    const contractAddress = "0x0A12AD84Cf1Da37cfbDE896Ec572B45C1d8A6763";
+    const contractAddress = "0xCac52Ac25540d7bb156F8b1103Fdd9a375d4701a";
     const PRIZE_AMOUNT = 0.0001;
 
 
@@ -49,9 +49,9 @@ const App = () => {
             const network = await ethereum.request({method: 'eth_chainId'});
             if (network === CHAIN_ID) {
                 setNetwork(network);
-                console.log("Please connect to Polygon testnet");
+                console.log("Connected to Polygon testnet");
             }
-            console.log("Network is :", network, typeof(network));
+            console.log("Network is :", network, typeof (network));
 
             /**
              * Requête à l'objet ethereum de la liste des comptes
@@ -122,11 +122,12 @@ const App = () => {
                  * which will trigger its code to be run with the input of the transaction data.
                  * @type {Contract}
                  */
-                const tasksContract = new ethers.Contract(contractAddress, tasksAbi.abi, signer);
+                const tasksContract = new ethers.Contract(contractAddress, contractABI.abi, signer);
 
                 //interact with our contract to get the total amount of waves
                 const tasksAmount = await tasksContract.getTotalTasks();
                 setTaskAmount(tasksAmount);
+                console.log("Total tasks : ", tasksAmount);
             } else {
                 console.log("Ethereum object doesn't exist!")
             }
@@ -148,11 +149,11 @@ const App = () => {
 
                 const provider = new ethers.providers.Web3Provider(ethereum);
                 const signer = provider.getSigner();
-                const tasksContract = new ethers.Contract(contractAddress, tasksAbi.abi, signer);
+                const tasksContract = new ethers.Contract(contractAddress, contractABI.abi, signer);
 
                 let count = await tasksContract.getTotalTasks();
                 console.log("Retrieved total tasks count...", count.toNumber());
-                const taskTxn = await tasksContract.wave(taskName, taskEndingTime);
+                const taskTxn = await tasksContract.createTask(taskName, taskEndingTime);
                 console.log("Mining...", taskTxn.hash);
                 await taskTxn.wait();
                 console.log("Mined -- ", taskTxn.hash);
@@ -170,7 +171,7 @@ const App = () => {
         }
     }
 
-    const displayTasks = async () => {
+    const getAllTasksInfo = async () => {
 
         const {ethereum} = window;
         let tasksArray = [];
@@ -179,15 +180,18 @@ const App = () => {
             if (window.ethereum) {
                 const provider = new ethers.providers.Web3Provider(ethereum);
                 const signer = provider.getSigner();
-                const tasksContract = new ethers.Contract(contractAddress, tasksAbi.abi, signer);
-                for (let i = 0; i < taskAmount - 1; i++) {
+                const tasksContract = new ethers.Contract(contractAddress, contractABI.abi, signer);
+                for (let i = 0; i <= taskAmount - 1; i++) {
                     infos = await tasksContract.getTaskInfo(i);
+                    console.log("Retrieving tasks info... " + infos);
                     tasksArray.push(infos);
+                    console.log(tasksArray);
                 }
                 setAllTasks(tasksArray);
             } else {
                 console.log("Ethereum object doesn't exist!");
             }
+
         } catch (error) {
             console.log(error)
             setIsMining(false);
@@ -204,7 +208,7 @@ const App = () => {
                 setIsMining(true);
                 const provider = new ethers.providers.Web3Provider(ethereum);
                 const signer = provider.getSigner();
-                const tasksContract = new ethers.Contract(contractAddress, tasksAbi.abi, signer);
+                const tasksContract = new ethers.Contract(contractAddress, contractABI.abi, signer);
                 const taskTxn = await tasksContract.registerMember();
                 console.log("Mining...", taskTxn.hash);
                 await taskTxn.wait();
@@ -233,13 +237,14 @@ const App = () => {
     }, [reload])
     useEffect(() => {
         checkIfWalletIsConnected();
-        displayTasks();
-
+        console.log("displaying taasks");
+        getAllTasksInfo();
     }, [taskAmount])
 
 
     const handleTaskNameChange = (e) => {
-        setTaskName(e.target.value)
+        setTaskName(e.target.value);
+        console.log(taskName);
     }
 
     const handleEndingTimeChange = (e) => {
@@ -318,60 +323,57 @@ const App = () => {
         )
     }
 
-    const TaskInput = () => {
-        if (currentAccount !== "") {
-            return (
-                <div className="taskDiv">
-
-                    <input className="taskInput" placeholder="Entre le nom de la tâche à créer ici"
-                           onChange={handleTaskNameChange}>
-                    </input>
-                    <input className="taskInput" placeholder="Entre la durée de la tâche ici"
-                           onChange={handleEndingTimeChange}>
-                    </input>
-                </div>
-            )
-        } else {
-            return (<></>)
-        }
-    }
-
 
     const Tasks = () => {
         if (allTasks.length !== 0) {
-            allTasks.map( (task) => {
-                return (
-                    task[0], task[1],task[2], task[3],task[4]
-                )
-            })
-        }
-        else{
-            return(<></>)
-        }
-    }
-
-        return (
-            <div className="mainContainer">
-                <div className="dataContainer">
-                    <div className="header">
-                        👋 Hey there!
-                    </div>
-
-                    <div className="bio">
-                        Bienvenue sur la page du premier Workshop-dev KS !
-                    </div>
-
-                    {network !== CHAIN_ID ? <WrongNetwork/> :
-                        <div className="dataContainer">
-                            <TaskInput/>
-                            <InteractionButton/>
-                            <RegisterButton/>
-                            <Tasks/>
-                        </div>
-                    }
+            allTasks.map((task) => {
+                <div>
+                    {<div>task[0], task[1], task[2], task[3], task[4]</div>}
                 </div>
-            </div>
-        );
+            })
+        } else {
+            return (<div></div>)
+        }
     }
 
-    export default App
+    return (
+        <div className="mainContainer">
+            <div className="dataContainer">
+                <div className="header">
+                    👋 Hey there!
+                </div>
+
+                <div className="bio">
+                    Bienvenue sur la page du premier Workshop-dev KS !
+                </div>
+
+                {network !== CHAIN_ID ? <WrongNetwork/> :
+                    <div className="dataContainer">
+                        {currentAccount !== "" && (
+                            <div className="taskDiv">
+
+                                <input className="taskInput" placeholder="Entre le nom de la tâche à créer ici"
+                                       value={taskName} onChange={handleTaskNameChange}>
+                                </input>
+                                <input className="taskInput" placeholder="Entre la durée de la tâche ici"
+                                       value={taskEndingTime} onChange={handleEndingTimeChange}>
+                                </input>
+                            </div>)
+                        }
+                        <InteractionButton/>
+                        <RegisterButton/>
+                        <div>{allTasks.map((task) => {
+                            return (task.map((info) => {
+                                console.log(info);
+                                return (<div>{info.toString()}</div>);
+                            }));
+                        })
+                        }</div>
+                    </div>
+                }
+            </div>
+        </div>
+    );
+}
+
+export default App
