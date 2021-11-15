@@ -1,8 +1,9 @@
 import React, {useEffect, useState} from "react";
 import {ethers} from "ethers";
 import './App.css';
-import tasksAbi from './utils/tasksContract.json';
+import tasksAbi from './utils/tasksAbi.json';
 
+const CHAIN_ID = "0x13881";
 const App = () => {
 
 
@@ -12,7 +13,7 @@ const App = () => {
     const [currentAccount, setCurrentAccount] = useState("");
     const [isMining, setIsMining] = useState(false);
     const [isSuccess, setIsSuccess] = useState(false);
-    const [network, setNetwork] = useState("Rinkeby");
+    const [network, setNetwork] = useState("");
     const [reload, setReload] = useState(false);
     const [allTasks, setAllTasks] = useState([]);
 
@@ -46,11 +47,11 @@ const App = () => {
              */
                 //l'objet ethereum est l'api que metamask ajoute dans notre site web
             const network = await ethereum.request({method: 'eth_chainId'});
-            if (network !== '0x4') {
-                setNetwork("")
-                console.log("Please connect to Rinkeby testnet");
+            if (network === CHAIN_ID) {
+                setNetwork(network);
+                console.log("Please connect to Polygon testnet");
             }
-            console.log("Network is :", network);
+            console.log("Network is :", network, typeof(network));
 
             /**
              * Requête à l'objet ethereum de la liste des comptes
@@ -150,13 +151,13 @@ const App = () => {
                 const tasksContract = new ethers.Contract(contractAddress, tasksAbi.abi, signer);
 
                 let count = await tasksContract.getTotalTasks();
-                console.log("Retrieved total wave count...", count.toNumber());
+                console.log("Retrieved total tasks count...", count.toNumber());
                 const taskTxn = await tasksContract.wave(taskName, taskEndingTime);
                 console.log("Mining...", taskTxn.hash);
                 await taskTxn.wait();
                 console.log("Mined -- ", taskTxn.hash);
                 count = await tasksContract.getTotalTasks();
-                console.log("Retrieved total wave count...", count.toNumber());
+                console.log("Retrieved total tasks count...", count.toNumber());
                 setIsMining(false);
                 setIsSuccess(true);
             } else {
@@ -172,16 +173,16 @@ const App = () => {
     const displayTasks = async () => {
 
         const {ethereum} = window;
-        let tasksArray=[];
+        let tasksArray = [];
         let infos;
         try {
             if (window.ethereum) {
                 const provider = new ethers.providers.Web3Provider(ethereum);
                 const signer = provider.getSigner();
                 const tasksContract = new ethers.Contract(contractAddress, tasksAbi.abi, signer);
-                for (let i = 0 ; i < taskAmount-1; i++ ){
-                   infos = await tasksContract.getTaskInfo(i);
-                   tasksArray.push(infos);
+                for (let i = 0; i < taskAmount - 1; i++) {
+                    infos = await tasksContract.getTaskInfo(i);
+                    tasksArray.push(infos);
                 }
                 setAllTasks(tasksArray);
             } else {
@@ -311,7 +312,7 @@ const App = () => {
     const WrongNetwork = () => {
         return (
             <div className="dataContainer">
-                <span>Please connect to the Rinkeby Network </span>
+                <span>Please connect to the Polygon Testnet Network </span>
                 <button className="createTaskButton" onClick={handleReload}> Reload page</button>
             </div>
         )
@@ -331,31 +332,46 @@ const App = () => {
                 </div>
             )
         } else {
-            return <></>
+            return (<></>)
         }
     }
 
-    return (
-        <div className="mainContainer">
-            <div className="dataContainer">
-                <div className="header">
-                    👋 Hey there!
-                </div>
 
-                <div className="bio">
-                    Bienvenue sur la page du premier Workshop-dev KS !
-                </div>
+    const Tasks = () => {
+        if (allTasks.length !== 0) {
+            allTasks.map( (task) => {
+                return (
+                    task[0], task[1],task[2], task[3],task[4]
+                )
+            })
+        }
+        else{
+            return(<></>)
+        }
+    }
 
-                {network !== "Rinkeby" ? <WrongNetwork/> :
-                    <div className="dataContainer">
-                        <TaskInput/>
-                        <InteractionButton/>
-                        <RegisterButton/>
+        return (
+            <div className="mainContainer">
+                <div className="dataContainer">
+                    <div className="header">
+                        👋 Hey there!
                     </div>
-                }
-            </div>
-        </div>
-    );
-}
 
-export default App
+                    <div className="bio">
+                        Bienvenue sur la page du premier Workshop-dev KS !
+                    </div>
+
+                    {network !== CHAIN_ID ? <WrongNetwork/> :
+                        <div className="dataContainer">
+                            <TaskInput/>
+                            <InteractionButton/>
+                            <RegisterButton/>
+                            <Tasks/>
+                        </div>
+                    }
+                </div>
+            </div>
+        );
+    }
+
+    export default App
