@@ -4,7 +4,7 @@
 
 Tasks smart-contract is deployed on Mumbai testnet 0xCac52Ac25540d7bb156F8b1103Fdd9a375d4701a.
 
-1. [Add Mumbai testnet on your Metamask](https://docs.unbound.finance/guides/guide-to-accessing-polygon-testnet-and-how-to-use-unbound-faucet-tokens)
+1. Add Mumbai testnet on your Metamask with this [website](https://chainlist.org/) or [this one](https://docs.unbound.finance/guides/guide-to-accessing-polygon-testnet-and-how-to-use-unbound-faucet-tokens)
 2. Get faucet MATICs on [this website](https://faucet.polygon.technology/).
 3. Create .env file in the project's root:
 ```
